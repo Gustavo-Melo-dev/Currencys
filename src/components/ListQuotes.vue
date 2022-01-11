@@ -1,59 +1,61 @@
 <template>
-  <div class="table">
+  <table class="table">
     <thead>
-        <tr>
-            <th>Code:</th>
-            <th>Name:</th>
-            <th>Max:</th>
-            <th>Min:</th>
-            <th>Variation:</th>
-            <th></th>
-        </tr>
+      <tr>
+        <th>Code:</th>
+        <th>Name:</th>
+        <th>Max:</th>
+        <th>Min:</th>
+        <th>Variation:</th>
+        <th></th>
+      </tr>
     </thead>
     <tbody>
-        <tr v-for="(quote, index) in quotes" :key="index">
-            <td>{{ index }}</td>
-            <td>{{ quote.name }}</td>
-            <td>{{ quote.high }}</td>
-            <td>{{ quote.low }}</td>
-            <td>
-                <span 
-                class="label label-rounded text-small"
-                :class="{ 'label-error': quote.pctChange < 0, 'label-success': quote.pctChange > 0}">
-                    {{ quote.pctChange }} %
-                </span>
-            </td>
-            <td></td>
-        </tr>
+      <tr v-for="(quote, key) in quotes" :key="key">
+        <td>{{ key }}</td>
+        <td>{{ quote.name }}</td>
+        <td>{{ quote.high }}</td>
+        <td>{{ quote.low }}</td>
+        <td>
+          <span
+            class="label label-rounded text-small"
+            :class="{
+              'label-error': quote.pctChange < 0,
+              'label-success': quote.pctChange > 0,
+            }"
+          >
+            {{ quote.pctChange }} %
+          </span>
+        </td>
+        <td>
+          <a
+            v-if="!listenQuotes.includes(key)"
+            class="btn btn-primary btn-sm tooltip tooltip-left"
+            data-tooltip="Seguir"
+            @click="$emit('listen', key)"
+          >
+            <i class="icon icon-plus"></i>
+          </a>
+          <a
+            v-else
+            class="btn btn-error btn-sm tooltip tooltip-left"
+            data-tooltip="Remover"
+            @click="$emit('unlisten', key)"
+          >
+            <i class="icon icon-minus"></i>
+          </a>
+        </td>
+      </tr>
     </tbody>
-  </div>
+  </table>
 </template>
 
 <script>
-import axios from 'axios'
-import { reactive, toRefs } from '@vue/reactivity'
-import { onMounted } from '@vue/runtime-core'
-
 export default {
-    name: "ListQuotes",
-    setup() {
-        const state = reactive({
-            quotes: {}
-        })
-
-        onMounted(() => {
-        axios.get("https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL").then((response) => {
-            state.quotes = response.data
-        })
-        })
-
-         return {
-        ...toRefs(state)
-        }
-    }
-}
+  props: {
+    quotes: { type: Object, required: true },
+    listenQuotes: { type: Array, required: true },
+  },
+  emits: ['listen', 'unlisten']
+};
 </script>
-
-<style>
-
-</style>
